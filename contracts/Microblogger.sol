@@ -26,14 +26,14 @@ contract Microblogger
 
     }
 
-    mapping (address => bool) public NewMember;
+    mapping (address => bool) public OldMember;
     mapping (address => bytes32) private _key_value;
     mapping (address => member) private _memberDetails;
     mapping (address => bool) private _logged;
 
     modifier notRegistered()
     {
-        assert(!NewMember[msg.sender]);
+        assert(!OldMember[msg.sender]);
         _;
 
     }
@@ -60,6 +60,7 @@ contract Microblogger
     {
         _memberDetails[msg.sender] = member(_name,msg.sender);
         make_secure(keyphrase);
+        OldMember[msg.sender]=true;
     }
 
     function login(string keyphrase) public
@@ -112,7 +113,7 @@ contract Microblogger
 
     modifier loggedMember()
     {
-        assert(!NewMember[msg.sender] && _logged[msg.sender]);
+        assert(OldMember[msg.sender] && _logged[msg.sender]);
         _;
     }
 
