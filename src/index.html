@@ -25,71 +25,87 @@
           <hr/>
           <br/>
 
-          <!-- Loader -->
-          <div id="loader">
-            <p class="text-center">Loading...</p>
+
+           <!-- Loader -->
+           <div id="loader">
+             <p class="text-center">Loading...</p>
+           </div>
+
+                       <!-- Sign-Up Form -->
+                    <div class="row" >
+                        <div class="col-md-6">
+                            <form>
+                              <div class="form-row">
+                                <div class="col-auto">
+                                <legend>Sign-Up</legend>
+                                  <input type="text" class="form-control" placeholder="Username">
+                                </div>
+                                <div class="col-auto">
+                                  <input type="password" class="form-control" id="inputPassword3" aria-describedby="passwordHelpBlock" placeholder="KeyPhrase">
+                                  <small id="passwordHelpBlock" class="form-text text-muted">
+                                    Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji. XD
+                                  </small>
+                                </div>
+                              </div>
+                              <button type="submit" class="btn btn-primary">Sign Up</button>
+                              <div class="alert alert-success" role="alert">
+                                Sign-Up Success! Proceed to login!
+                              </div>
+                              <div class="alert alert-warning" role="alert">
+                                  Already a member!!
+                              </div>
+                            </form>
+                        </div>
+
+                        <!-- Sign-Up Ends -->
+
+                        <!-- Login Form -->
+                            <div class="col-md-6">
+                                    <form class="form-inline">
+                                        <legend>Login</legend>
+                                        <div class="form-group mb-2">
+                                            <label for="staticUser1" id="accountAddress" class="sr-only"></label>
+                                            <input type="text" readonly class="form-control-plaintext" id="staticEmail2" >
+                                        </div>
+                                        <div class="form-group mx-sm-3 mb-2">
+                                            <label for="inputPassword2" class="sr-only">Password</label>
+                                            <input type="password" class="form-control" id="inputPassword2" placeholder="Password">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mb-2">Confirm identity</button>
+                                  </form>
+
+                              <div class="alert alert-success" role="alert">
+                                Login Successful!
+                              </div>
+
+                              <div class="alert alert-danger" role="alert">
+                                   Wrong Password!!
+                              </div>
+                          </div>
+                  </div>
+
+          <!-- Login Ends -->
+
+
           </div>
-
-          <!-- Sign-Up Form -->
-          <form>
-            <div class="form-row">
-              <div class="col-auto">
-                <input type="text" class="form-control" placeholder="Username">
-              </div>
-              <div class="col-auto">
-                <input type="password" class="form-control" id="inputPassword3" aria-describedby="passwordHelpBlock" placeholder="KeyPhrase">
-                <small id="passwordHelpBlock" class="form-text text-muted">
-                  Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji. XD
-                </small>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-            <div class="alert alert-success" role="alert">
-              Sign-Up Success! Proceed to login!
-            </div>
-            <div class="alert alert-warning" role="alert">
-                Already a member!!
-            </div>
-          </form>
-          <!-- Sign-Up Ends -->
-          <br>
-          <!-- Login Form -->
-          <form class="form-inline">
-              <div class="form-group mb-2">
-                  <label for="staticUser1" class="sr-only">Username</label>
-                  <input type="text" readonly class="form-control-plaintext" id="staticEmail2" >
-              </div>
-              <div class="form-group mx-sm-3 mb-2">
-                  <label for="inputPassword2" class="sr-only">Password</label>
-                  <input type="password" class="form-control" id="inputPassword2" placeholder="Password">
-              </div>
-              <button type="submit" class="btn btn-primary mb-2">Confirm identity</button>
-        </form>
-        <div class="alert alert-success" role="alert">
-          Login Successful!
         </div>
-
-        <div class="alert alert-danger" role="alert">
-             Wrong Password!!
-        </div>
-            <!-- Login Ends -->
-
-            
-            <!-- Card  -->
-            <div class="card border-dark mb-3" style="max-width: 18rem;">
-              <div class="card-header">Header</div>
-              <div class="card-body text-dark">
-                <h5 class="card-title">Dark card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div>
-                <div class="card-footer">Footer</div>
-            </div>
-
-
-
-          </div>
+        <div id="CardRows" class="row">
+                  <!-- Cards LOAD HERE -->
         </div>
     </div>
+          <!-- Card  -->
+          <div id="cardTemplate" class="row" style="display: none;">
+              <div class="card mb-3" style="max-width: 18rem;border:1px solid black;padding: 5px;">
+            <div class="card-header">Header</div>
+            <hr>
+            <div class="card-body text-dark">
+              <h5 class="card-title">Dark card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+            <hr>
+              <div class="card-footer">Footer</div>
+            </div>
+        </div>
 
 
 

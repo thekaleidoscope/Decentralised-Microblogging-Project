@@ -1,4 +1,0 @@
-node
-truffle
-mocha
-chai
