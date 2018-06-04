@@ -177,6 +177,11 @@ contract Microblogger is timehelper
         msgCount++;
         NewPost();
     }
+    function logout() public
+    {
+        _logged[msg.sender] = false;
+
+    }
 
 
 }

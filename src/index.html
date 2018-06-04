@@ -18,108 +18,118 @@
     <![endif]-->
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">FreeSpill</h1>
-          <hr/>
-          <br/>
+      <div class="container">
+       <div class="row">
+         <div class="col-xs-12 col-sm-8 col-sm-push-2">
+           <h1 class="text-center">FreeSpill</h1>
+           <hr/>
+           <br/>
 
 
-           <!-- Loader -->
-           <div id="loader">
-             <p class="text-center">Loading...</p>
-           </div>
-
-                       <!-- Sign-Up Form -->
-                    <div class="row" >
-                        <div class="col-md-6">
-                            <form onSubmit="App.register(); return false;" >
-                              <div class="form-row ">
-                                <div class="col-md-10">
-                                <legend>Sign-Up</legend>
-                                  <input type="text" class="form-control" id="inputUsername" placeholder="Username">
-                                </div>
-                                <div class="col-md-10">
-                                  <input type="password" class="form-control" id="inputPassword3" aria-describedby="passwordHelpBlock" placeholder="KeyPhrase">
-                                  <small id="passwordHelpBlock" class="form-text text-muted">
-                                    Your password must be 8-20 characters long, contain letters and numbers, and must not contain emoji. XD
-                                  </small>
-                                </div>
-                              </div>
-                              <button type="submit" class="btn btn-primary">Sign Up</button>
-                              <div class="alert alert-success" id="successreg" role="alert" style="display: none;">
-                                Sign-Up Success! Proceed to login!
-                              </div>
-                              <div class="alert alert-warning" id="alreadymember" role="alert" style="display: none;">
-                                  Already a member!!
-                              </div>
-                            </form>
-                        </div>
-
-                        <!-- Sign-Up Ends -->
-
-                        <!-- Login Form -->
-                            <div class="col-md-6">
-                                    <form class="form-inline ml-auto" onSubmit="App.login(); return false;" >
-                                        <legend>Login</legend>
-                                        <div class="form-group mb-2">
-                                               <p id="accountAddress" class="text-center"></p>
-
-                                        </div>
-                                        <div class="form-group  mb-2 ">
-                                            <label for="inputPassword2" class="sr-only">Password</label>
-                                            <input type="password" class="form-control " id="inputPassword2" placeholder="Password">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary mb-2">Confirm identity</button>
-                                  </form>
-
-                              <div class="alert alert-success" id="loginsucc" role="alert" style="display: none;">
-                                Login Successful!
-                              </div>
-
-                              <div class="alert alert-danger" id="IncorrectPass" role="alert" style="display: none;">
-                                   Wrong Password!!
-                              </div>
-                          </div>
-                  </div>
-
-          <!-- Login Ends -->
-
-
-          </div>
-        </div>
-        <br/>
-        <hr/>
-        <form onSubmit="App.createPost(); return false;">
-            <div class="form-group">
-               <label for="exampleFormControlTextarea1">Whats on your mind?</label>
-               <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+            <!-- Loader -->
+            <div id="loader">
+              <p class="text-center">Loading...</p>
             </div>
-            <button type="submit" class="btn btn-primary mb-2 float-right">Post</button>
-        </form>
-        <br/>
-        <br/>
-        <div id="CardRows" class=".align-items-lg-start" role="group" >
-                  <!-- Cards LOAD HERE -->
-        </div>
-    </div>
-          <!-- Card  -->
-          <div id="cardTemplate" class="row mt-5 justify-content-center" role="group"   style="display: none;">
-              <div class="card text-white bg-dark card-custom mx-2 mb-3" >
-                  <div class="card-header">
-                      <div class=card-text id="headText">Header</div>
-                      <small class="text-secondary" id="smallHeader">Last updated 3 mins ago</small>
-                      </div>
-                  <div class="card-body">
 
-                    <p class="card-text" id ="largerText">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <p class="card-text"><small class="text-muted" id="smallText">Last updated 3 mins ago</small></p>
-                  </div>
+                        <!-- Sign-Up Form -->
+                     <div class="row " >
+                         <div class="col-md-6">
+                             <form onSubmit="App.register(); return false;" >
+
+                                 <legend>Sign-Up</legend>
+                                 <hr>
+                                   <input type="text" class="form-control" id="inputUsername" placeholder="Username">
+                                <br>
+                                   <input type="password" class="form-control" id="inputPassword3" aria-describedby="passwordHelpBlock" placeholder="Keyphrase">
+
+                                   <small id="passwordHelpBlock" class="form-text text-muted">
+                                     Your phrase must be 8-20 characters long, contain letters and numbers, and must not contain emoji. XD
+                                   </small>
+
+                                <br>
+                               <button type="submit" class="btn btn-primary">Sign Up</button>
+
+                               <div class="alert alert-success" id="successreg" role="alert" style="display: none;">
+                                 Sign-Up Success! Proceed to login!
+                               </div>
+                               <div class="alert alert-warning" id="alreadymember" role="alert" style="display: none;">
+                                   Already a member!!
+                               </div>
+
+                             </form>
+                         </div>
+
+                         <!-- Sign-Up Ends -->
+
+                         <!-- Login Form -->
+                             <div class="col-md-6">
+                                     <form class=" ml-auto" onSubmit="App.login(); return false;" >
+
+                                         <legend>Login</legend>
+                                         <hr>
+                                         <div class="form-group mb-2">
+                                                <p id="accountAddress" class="text-center"></p>
+
+                                         </div>
+                                         <div class="form-group  mb-2 ">
+                                             <label for="inputPassword2" class="sr-only">Keyphrase</label>
+                                             <input type="password" class="form-control " id="inputPassword2" placeholder="Keyphrase">
+                                         </div>
+                                         <button type="submit" class="btn btn-primary mb-2">Confirm identity</button>
+                                   </form>
+
+                               <div class="alert alert-success" id="loginsucc" role="alert" style="display: none;">
+                                 Login Successful!
+                               </div>
+
+                               <div class="alert alert-danger" id="IncorrectPass" role="alert" style="display: none;">
+                                    Wrong Phrase!!
+                               </div>
+                           </div>
+                   </div>
+
+           <!-- Login Ends -->
 
 
-                </div>
-        </div>
+           </div>
+         </div>
+         <br>
+         <hr/>
+         <form onSubmit="App.createPost(); return false;">
+             <div class="form-group">
+                <label for="exampleFormControlTextarea1">Whats on your mind?</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+             </div>
+             <button type="submit" class="btn btn-primary mb-2" style="float:right;">Post</button>
+         </form>
+         <div class="alert alert-danger" id="postError" role="alert" style="display: none;">
+             Either you're not logged in or you're not signed in !!
+         </div>
+
+
+         <br/>
+         <br/>
+         <div id="CardRows" class=".align-items-lg-start" role="group" >
+                   <!-- Cards LOAD HERE -->
+         </div>
+     </div>
+           <!-- Card  -->
+           <div id="cardTemplate" class="row mt-5 justify-content-center" role="group"   style="display: none;">
+               <div class="card text-white bg-dark card-custom mx-2 mb-3" >
+                   <div class="card-header">
+                       <div class=card-text id="headText">Header</div>
+                       <small class="text-secondary" id="smallHeader">Last updated 3 mins ago</small>
+                       </div>
+                   <div class="card-body">
+
+                     <p class="card-text" id ="largerText">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                     <p class="card-text"><small class="text-muted" id="smallText">Last updated 3 mins ago</small></p>
+                   </div>
+
+
+                 </div>
+         </div>
+
 
 
 

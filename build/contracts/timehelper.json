@@ -1,23 +1,23 @@
 {
   "contractName": "timehelper",
   "abi": [],
-  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a723058201ac2f5f12880f94af066763df876b9a549d6ecb822a176110108c7b9f9fefecf0029",
-  "deployedBytecode": "0x6080604052600080fd00a165627a7a723058201ac2f5f12880f94af066763df876b9a549d6ecb822a176110108c7b9f9fefecf0029",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820e361a82ea1a39d7d0cce84d1855dc66c3f9b878854bff8b41450f1707113a8ce0029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820e361a82ea1a39d7d0cce84d1855dc66c3f9b878854bff8b41450f1707113a8ce0029",
   "sourceMap": "26:1480:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;26:1480:0;;;;;;;",
   "deployedSourceMap": "26:1480:0:-;;;;;",
-  "source": "pragma solidity ^0.4.17;\n\ncontract timehelper\n{\n    uint constant SECONDS_PER_DAY = 24 * 60 * 60;\n    uint constant SECONDS_PER_HOUR = 60 * 60;\n    uint constant SECONDS_PER_MINUTE = 60;\n    int constant OFFSET19700101 = 2440588;\n\n    uint constant DOW_MON = 1;\n    uint constant DOW_TUE = 2;\n    uint constant DOW_WED = 3;\n    uint constant DOW_THU = 4;\n    uint constant DOW_FRI = 5;\n    uint constant DOW_SAT = 6;\n    uint constant DOW_SUN = 7;\n\n    function _daysToDate(uint _days) internal pure returns (uint year, uint month, uint day)\n    {\n        int __days = int(_days);\n\n        int L = __days + 68569 + OFFSET19700101;\n        int N = 4 * L / 146097;\n        L = L - (146097 * N + 3) / 4;\n        int _year = 4000 * (L + 1) / 1461001;\n        L = L - 1461 * _year / 4 + 31;\n        int _month = 80 * L / 2447;\n        int _day = L - 2447 * _month / 80;\n        L = _month / 11;\n        _month = _month + 2 - 12 * L;\n        _year = 100 * (N - 49) + _year + L;\n\n        year = uint(_year);\n        month = uint(_month);\n        day = uint(_day);\n    }\n\n    function timestampToDateTime(uint timestamp) internal pure returns (uint year, uint month, uint day, uint hour, uint minute, uint second) {\n        (year, month, day) = _daysToDate(timestamp / SECONDS_PER_DAY);\n        uint secs = timestamp % SECONDS_PER_DAY;\n        hour = secs / SECONDS_PER_HOUR;\n        secs = secs % SECONDS_PER_HOUR;\n        minute = secs / SECONDS_PER_MINUTE;\n        second = secs % SECONDS_PER_MINUTE;\n    }\n\n\n\n}\ncontract Microblogger is timehelper\n{\n\n\n    function Microblogger() public\n    {\n            msgCount=0;\n\n    }\n\n    /*\n    # ------------------------------------------------------------------------------\n    # | Memeber Registration and Logging                                           |\n    # ------------------------------------------------------------------------------\n    */\n\n\n\n\n    struct member\n    {\n        string  name;\n        address  addr;\n\n    }\n\n    mapping (address => bool) public OldMember;\n    mapping (address => bytes32) private _key_value;\n    mapping (address => member) private _memberDetails;\n    mapping (address => bool) private _logged;\n\n    modifier notRegistered()\n    {\n        assert(!OldMember[msg.sender]);\n        _;\n\n    }\n\n\n    function make_secure(string _pass) internal notRegistered\n    {\n        bytes memory _arg1 =  bytes(_pass);\n        bytes memory _arg2 =  new bytes(20);\n        address x=msg.sender;\n        for (uint i = 0; i < 20; i++)\n            _arg2[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));\n        string memory _temps = new string( _arg1.length + _arg2.length );\n        bytes memory _target_s = bytes(_temps);\n        uint k=0;\n        for(i=0;i<_arg1.length;i++) _target_s[k++]=_arg1[i++];\n        for(i=0;i<_arg2.length;i++) _target_s[k++]=_arg2[i++];\n        bytes32 _sha256;\n        _sha256=keccak256(_target_s);\n\n        _key_value[msg.sender]=_sha256;\n    }\n\n    function register(string _name,string keyphrase) public notRegistered\n    {\n        _memberDetails[msg.sender] = member(_name,msg.sender);\n        make_secure(keyphrase);\n        OldMember[msg.sender]=true;\n    }\n\n    function login(string keyphrase) public\n    {\n        assert(msg.sender== _memberDetails[msg.sender].addr);\n\n        bytes memory _arg1 =  bytes(keyphrase);\n        bytes memory _arg2 =  new bytes(20);\n        address x=msg.sender;\n        for (uint i = 0; i < 20; i++)\n            _arg2[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));\n        string memory _temps = new string( _arg1.length + _arg2.length );\n        bytes memory _target_s = bytes(_temps);\n        uint k=0;\n        for(i=0;i<_arg1.length;i++) _target_s[k++]=_arg1[i++];\n        for(i=0;i<_arg2.length;i++) _target_s[k++]=_arg2[i++];\n        bytes32 _sha256;\n        _sha256=keccak256(_target_s);\n\n        assert(_key_value[msg.sender] == _sha256);\n\n        _logged[msg.sender] = true;\n\n    }\n\n\n\n    /*\n    # ------------------------------------------------------------------------------\n    # | Making Posts                                                                |\n    # ------------------------------------------------------------------------------\n    */\n\n\n\n    //track of counter for posts\n    uint public msgCount;\n\n    //Model of a Post\n    struct Post\n    {\n        address owner;\n        uint id;\n        string data;\n        uint year; uint month; uint day; uint hour; uint minute; uint second;\n        string username;\n    }\n\n    //Holds the post as a map to the counter.\n    mapping (uint => Post ) public Messages;\n\n    event NewPost();\n\n    modifier loggedMember()\n    {\n        assert(OldMember[msg.sender] && _logged[msg.sender]);\n        _;\n    }\n\n    //Message creation\n    function PostMessage(string msgs) public loggedMember\n    {   uint year; uint month; uint day; uint hour; uint minute; uint second;\n        (year, month, day, hour, minute , second) = timestampToDateTime(now);\n        Messages[msgCount] = Post(msg.sender,msgCount, msgs , year, month, day,hour,minute,second,_memberDetails[msg.sender].name );\n        //Increment the msg counter\n        msgCount++;\n        NewPost();\n    }\n\n\n}\n",
+  "source": "pragma solidity ^0.4.17;\n\ncontract timehelper\n{\n    uint constant SECONDS_PER_DAY = 24 * 60 * 60;\n    uint constant SECONDS_PER_HOUR = 60 * 60;\n    uint constant SECONDS_PER_MINUTE = 60;\n    int constant OFFSET19700101 = 2440588;\n\n    uint constant DOW_MON = 1;\n    uint constant DOW_TUE = 2;\n    uint constant DOW_WED = 3;\n    uint constant DOW_THU = 4;\n    uint constant DOW_FRI = 5;\n    uint constant DOW_SAT = 6;\n    uint constant DOW_SUN = 7;\n\n    function _daysToDate(uint _days) internal pure returns (uint year, uint month, uint day)\n    {\n        int __days = int(_days);\n\n        int L = __days + 68569 + OFFSET19700101;\n        int N = 4 * L / 146097;\n        L = L - (146097 * N + 3) / 4;\n        int _year = 4000 * (L + 1) / 1461001;\n        L = L - 1461 * _year / 4 + 31;\n        int _month = 80 * L / 2447;\n        int _day = L - 2447 * _month / 80;\n        L = _month / 11;\n        _month = _month + 2 - 12 * L;\n        _year = 100 * (N - 49) + _year + L;\n\n        year = uint(_year);\n        month = uint(_month);\n        day = uint(_day);\n    }\n\n    function timestampToDateTime(uint timestamp) internal pure returns (uint year, uint month, uint day, uint hour, uint minute, uint second) {\n        (year, month, day) = _daysToDate(timestamp / SECONDS_PER_DAY);\n        uint secs = timestamp % SECONDS_PER_DAY;\n        hour = secs / SECONDS_PER_HOUR;\n        secs = secs % SECONDS_PER_HOUR;\n        minute = secs / SECONDS_PER_MINUTE;\n        second = secs % SECONDS_PER_MINUTE;\n    }\n\n\n\n}\ncontract Microblogger is timehelper\n{\n\n\n    function Microblogger() public\n    {\n            msgCount=0;\n\n    }\n\n    /*\n    # ------------------------------------------------------------------------------\n    # | Memeber Registration and Logging                                           |\n    # ------------------------------------------------------------------------------\n    */\n\n\n\n\n    struct member\n    {\n        string  name;\n        address  addr;\n\n    }\n\n    mapping (address => bool) public OldMember;\n    mapping (address => bytes32) private _key_value;\n    mapping (address => member) private _memberDetails;\n    mapping (address => bool) private _logged;\n\n    modifier notRegistered()\n    {\n        assert(!OldMember[msg.sender]);\n        _;\n\n    }\n\n\n    function make_secure(string _pass) internal notRegistered\n    {\n        bytes memory _arg1 =  bytes(_pass);\n        bytes memory _arg2 =  new bytes(20);\n        address x=msg.sender;\n        for (uint i = 0; i < 20; i++)\n            _arg2[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));\n        string memory _temps = new string( _arg1.length + _arg2.length );\n        bytes memory _target_s = bytes(_temps);\n        uint k=0;\n        for(i=0;i<_arg1.length;i++) _target_s[k++]=_arg1[i++];\n        for(i=0;i<_arg2.length;i++) _target_s[k++]=_arg2[i++];\n        bytes32 _sha256;\n        _sha256=keccak256(_target_s);\n\n        _key_value[msg.sender]=_sha256;\n    }\n\n    function register(string _name,string keyphrase) public notRegistered\n    {\n        _memberDetails[msg.sender] = member(_name,msg.sender);\n        make_secure(keyphrase);\n        OldMember[msg.sender]=true;\n    }\n\n    function login(string keyphrase) public\n    {\n        assert(msg.sender== _memberDetails[msg.sender].addr);\n\n        bytes memory _arg1 =  bytes(keyphrase);\n        bytes memory _arg2 =  new bytes(20);\n        address x=msg.sender;\n        for (uint i = 0; i < 20; i++)\n            _arg2[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));\n        string memory _temps = new string( _arg1.length + _arg2.length );\n        bytes memory _target_s = bytes(_temps);\n        uint k=0;\n        for(i=0;i<_arg1.length;i++) _target_s[k++]=_arg1[i++];\n        for(i=0;i<_arg2.length;i++) _target_s[k++]=_arg2[i++];\n        bytes32 _sha256;\n        _sha256=keccak256(_target_s);\n\n        assert(_key_value[msg.sender] == _sha256);\n\n        _logged[msg.sender] = true;\n\n    }\n\n\n\n    /*\n    # ------------------------------------------------------------------------------\n    # | Making Posts                                                                |\n    # ------------------------------------------------------------------------------\n    */\n\n\n\n    //track of counter for posts\n    uint public msgCount;\n\n    //Model of a Post\n    struct Post\n    {\n        address owner;\n        uint id;\n        string data;\n        uint year; uint month; uint day; uint hour; uint minute; uint second;\n        string username;\n    }\n\n    //Holds the post as a map to the counter.\n    mapping (uint => Post ) public Messages;\n\n    event NewPost();\n\n    modifier loggedMember()\n    {\n        assert(OldMember[msg.sender] && _logged[msg.sender]);\n        _;\n    }\n\n    //Message creation\n    function PostMessage(string msgs) public loggedMember\n    {   uint year; uint month; uint day; uint hour; uint minute; uint second;\n        (year, month, day, hour, minute , second) = timestampToDateTime(now);\n        Messages[msgCount] = Post(msg.sender,msgCount, msgs , year, month, day,hour,minute,second,_memberDetails[msg.sender].name );\n        //Increment the msg counter\n        msgCount++;\n        NewPost();\n    }\n    function logout() public\n    {\n        _logged[msg.sender] = false;\n\n    }\n\n\n}\n",
   "sourcePath": "/home/neosp/Test/git_experiments/Decentralized_twitter/contracts/Microblogger.sol",
   "ast": {
     "absolutePath": "/home/neosp/Test/git_experiments/Decentralized_twitter/contracts/Microblogger.sol",
     "exportedSymbols": {
       "Microblogger": [
-        722
+        733
       ],
       "timehelper": [
         235
       ]
     },
-    "id": 723,
+    "id": 734,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -3405,7 +3405,7 @@
             "visibility": "internal"
           }
         ],
-        "scope": 723,
+        "scope": 734,
         "src": "26:1480:0"
       },
       {
@@ -3435,9 +3435,9 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 722,
+        "id": 733,
         "linearizedBaseContracts": [
-          722,
+          733,
           235
         ],
         "name": "Microblogger",
@@ -3523,7 +3523,7 @@
               "parameters": [],
               "src": "1586:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "1551:67:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -3588,7 +3588,7 @@
             ],
             "name": "member",
             "nodeType": "StructDefinition",
-            "scope": 722,
+            "scope": 733,
             "src": "1897:71:0",
             "visibility": "public"
           },
@@ -3597,7 +3597,7 @@
             "id": 254,
             "name": "OldMember",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "1974:42:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -3642,7 +3642,7 @@
             "id": 258,
             "name": "_key_value",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2022:47:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -3687,7 +3687,7 @@
             "id": 262,
             "name": "_memberDetails",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2075:50:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -3734,7 +3734,7 @@
             "id": 266,
             "name": "_logged",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2131:41:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -3819,7 +3819,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "2236:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -3868,7 +3868,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "2218:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -4148,7 +4148,7 @@
                       "name": "msg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 737,
+                      "referencedDeclaration": 748,
                       "src": "2445:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_magic_message",
@@ -5649,7 +5649,7 @@
                         "name": "keccak256",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 731,
+                        "referencedDeclaration": 742,
                         "src": "2867:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
@@ -5712,7 +5712,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "2909:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -5839,7 +5839,7 @@
               "parameters": [],
               "src": "2336:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "2274:661:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -5883,7 +5883,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3040:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -5941,7 +5941,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "3067:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -6095,7 +6095,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3130:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -6253,7 +6253,7 @@
               "parameters": [],
               "src": "3015:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "2941:212:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -6288,7 +6288,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "3220:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -6337,7 +6337,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 737,
+                                "referencedDeclaration": 748,
                                 "src": "3248:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -6401,7 +6401,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "3213:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -6655,7 +6655,7 @@
                       "name": "msg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 737,
+                      "referencedDeclaration": 748,
                       "src": "3379:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_magic_message",
@@ -8156,7 +8156,7 @@
                         "name": "keccak256",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 731,
+                        "referencedDeclaration": 742,
                         "src": "3801:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
@@ -8226,7 +8226,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "3850:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -8291,7 +8291,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "3832:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -8348,7 +8348,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3892:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -8460,7 +8460,7 @@
               "parameters": [],
               "src": "3203:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "3159:759:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -8471,7 +8471,7 @@
             "id": 612,
             "name": "msgCount",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "4232:20:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -8759,7 +8759,7 @@
             ],
             "name": "Post",
             "nodeType": "StructDefinition",
-            "scope": 722,
+            "scope": 733,
             "src": "4281:187:0",
             "visibility": "public"
           },
@@ -8768,7 +8768,7 @@
             "id": 637,
             "name": "Messages",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "4520:39:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -8869,7 +8869,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "4643:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -8927,7 +8927,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "4666:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -8977,7 +8977,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "4626:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -9352,7 +9352,7 @@
                           "name": "now",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 739,
+                          "referencedDeclaration": 750,
                           "src": "4929:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -9463,7 +9463,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "4969:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -9614,7 +9614,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 737,
+                                "referencedDeclaration": 748,
                                 "src": "5048:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -9878,30 +9878,159 @@
               "parameters": [],
               "src": "4783:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "4725:423:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 731,
+              "nodeType": "Block",
+              "src": "5182:45:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 729,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "baseExpression": {
+                        "argumentTypes": null,
+                        "id": 724,
+                        "name": "_logged",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 266,
+                        "src": "5192:7:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                          "typeString": "mapping(address => bool)"
+                        }
+                      },
+                      "id": 727,
+                      "indexExpression": {
+                        "argumentTypes": null,
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 725,
+                          "name": "msg",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 748,
+                          "src": "5200:3:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_message",
+                            "typeString": "msg"
+                          }
+                        },
+                        "id": 726,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "sender",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": null,
+                        "src": "5200:10:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "5192:19:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "66616c7365",
+                      "id": 728,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "5214:5:0",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "false"
+                    },
+                    "src": "5192:27:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 730,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5192:27:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 732,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "logout",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 722,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5168:2:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 723,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5182:0:0"
+            },
+            "scope": 733,
+            "src": "5153:74:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 723,
-        "src": "1507:3645:0"
+        "scope": 734,
+        "src": "1507:3724:0"
       }
     ],
-    "src": "0:5153:0"
+    "src": "0:5232:0"
   },
   "legacyAST": {
     "absolutePath": "/home/neosp/Test/git_experiments/Decentralized_twitter/contracts/Microblogger.sol",
     "exportedSymbols": {
       "Microblogger": [
-        722
+        733
       ],
       "timehelper": [
         235
       ]
     },
-    "id": 723,
+    "id": 734,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -13289,7 +13418,7 @@
             "visibility": "internal"
           }
         ],
-        "scope": 723,
+        "scope": 734,
         "src": "26:1480:0"
       },
       {
@@ -13319,9 +13448,9 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 722,
+        "id": 733,
         "linearizedBaseContracts": [
-          722,
+          733,
           235
         ],
         "name": "Microblogger",
@@ -13407,7 +13536,7 @@
               "parameters": [],
               "src": "1586:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "1551:67:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -13472,7 +13601,7 @@
             ],
             "name": "member",
             "nodeType": "StructDefinition",
-            "scope": 722,
+            "scope": 733,
             "src": "1897:71:0",
             "visibility": "public"
           },
@@ -13481,7 +13610,7 @@
             "id": 254,
             "name": "OldMember",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "1974:42:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -13526,7 +13655,7 @@
             "id": 258,
             "name": "_key_value",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2022:47:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -13571,7 +13700,7 @@
             "id": 262,
             "name": "_memberDetails",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2075:50:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -13618,7 +13747,7 @@
             "id": 266,
             "name": "_logged",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "2131:41:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -13703,7 +13832,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "2236:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -13752,7 +13881,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "2218:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -14032,7 +14161,7 @@
                       "name": "msg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 737,
+                      "referencedDeclaration": 748,
                       "src": "2445:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_magic_message",
@@ -15533,7 +15662,7 @@
                         "name": "keccak256",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 731,
+                        "referencedDeclaration": 742,
                         "src": "2867:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
@@ -15596,7 +15725,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "2909:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -15723,7 +15852,7 @@
               "parameters": [],
               "src": "2336:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "2274:661:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -15767,7 +15896,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3040:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -15825,7 +15954,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "3067:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -15979,7 +16108,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3130:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -16137,7 +16266,7 @@
               "parameters": [],
               "src": "3015:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "2941:212:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -16172,7 +16301,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "3220:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -16221,7 +16350,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 737,
+                                "referencedDeclaration": 748,
                                 "src": "3248:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -16285,7 +16414,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "3213:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -16539,7 +16668,7 @@
                       "name": "msg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 737,
+                      "referencedDeclaration": 748,
                       "src": "3379:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_magic_message",
@@ -18040,7 +18169,7 @@
                         "name": "keccak256",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 731,
+                        "referencedDeclaration": 742,
                         "src": "3801:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
@@ -18110,7 +18239,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "3850:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -18175,7 +18304,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "3832:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -18232,7 +18361,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 737,
+                          "referencedDeclaration": 748,
                           "src": "3892:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -18344,7 +18473,7 @@
               "parameters": [],
               "src": "3203:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "3159:759:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -18355,7 +18484,7 @@
             "id": 612,
             "name": "msgCount",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "4232:20:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -18643,7 +18772,7 @@
             ],
             "name": "Post",
             "nodeType": "StructDefinition",
-            "scope": 722,
+            "scope": 733,
             "src": "4281:187:0",
             "visibility": "public"
           },
@@ -18652,7 +18781,7 @@
             "id": 637,
             "name": "Messages",
             "nodeType": "VariableDeclaration",
-            "scope": 722,
+            "scope": 733,
             "src": "4520:39:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -18753,7 +18882,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "4643:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -18811,7 +18940,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 737,
+                              "referencedDeclaration": 748,
                               "src": "4666:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -18861,7 +18990,7 @@
                       "name": "assert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 726,
+                      "referencedDeclaration": 737,
                       "src": "4626:6:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_assert_pure$_t_bool_$returns$__$",
@@ -19236,7 +19365,7 @@
                           "name": "now",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 739,
+                          "referencedDeclaration": 750,
                           "src": "4929:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -19347,7 +19476,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 737,
+                            "referencedDeclaration": 748,
                             "src": "4969:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -19498,7 +19627,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 737,
+                                "referencedDeclaration": 748,
                                 "src": "5048:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -19762,18 +19891,147 @@
               "parameters": [],
               "src": "4783:0:0"
             },
-            "scope": 722,
+            "scope": 733,
             "src": "4725:423:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 731,
+              "nodeType": "Block",
+              "src": "5182:45:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 729,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "baseExpression": {
+                        "argumentTypes": null,
+                        "id": 724,
+                        "name": "_logged",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 266,
+                        "src": "5192:7:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                          "typeString": "mapping(address => bool)"
+                        }
+                      },
+                      "id": 727,
+                      "indexExpression": {
+                        "argumentTypes": null,
+                        "expression": {
+                          "argumentTypes": null,
+                          "id": 725,
+                          "name": "msg",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 748,
+                          "src": "5200:3:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_message",
+                            "typeString": "msg"
+                          }
+                        },
+                        "id": 726,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberName": "sender",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": null,
+                        "src": "5200:10:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "5192:19:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "66616c7365",
+                      "id": 728,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "5214:5:0",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "false"
+                    },
+                    "src": "5192:27:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 730,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5192:27:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 732,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "logout",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 722,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5168:2:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 723,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5182:0:0"
+            },
+            "scope": 733,
+            "src": "5153:74:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 723,
-        "src": "1507:3645:0"
+        "scope": 734,
+        "src": "1507:3724:0"
       }
     ],
-    "src": "0:5153:0"
+    "src": "0:5232:0"
   },
   "compiler": {
     "name": "solc",
@@ -19781,5 +20039,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-06-04T16:06:46.914Z"
+  "updatedAt": "2018-06-04T19:41:12.104Z"
 }

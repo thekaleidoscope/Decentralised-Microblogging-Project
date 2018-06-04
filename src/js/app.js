@@ -102,7 +102,7 @@ App = {
     {       var cardRow = $('#CardRows');
             cardRow.empty();
 
-             $("#exampleFormControlTextarea1").trigger("reset");
+
 
         for (var i = msgCount-1; i>=0; i--)
         {
@@ -141,6 +141,8 @@ App = {
       }).catch(function(error) {
         console.warn(error);
       });
+
+
   },
 
   login: function()
@@ -164,6 +166,8 @@ App = {
           var dialog = $("#IncorrectPass");
           dialog.show();
           setTimeout(function() { dialog.hide(); }, 2000);
+
+
       });
   },
 
@@ -178,14 +182,18 @@ App = {
         return MessageInst.PostMessage(postData,  { from: App.account } );
     }).then(function(res)
     {
+
         // Wait for votes to update
           $("#content").hide();
           $("#loader").show();
     }).catch(function(err) {
-      console.error(err);
+
+      var dialog = $("#postError");
+      dialog.show();
+      setTimeout(function() { dialog.hide(); }, 2000);
     });
 
-
+        $('#exampleFormControlTextarea1')[0].reset();
     },
 
     register: function()
@@ -210,9 +218,12 @@ App = {
             var dialog = $("#alreadymember");
             dialog.show();
             setTimeout(function() { dialog.hide(); }, 2000);
+
+
         });
 
     }
+
 
 };
 
