@@ -47,13 +47,32 @@ App = {
       App.contracts.Microblogger = TruffleContract(microblog);
       // Connect provider to interact with contract
       App.contracts.Microblogger.setProvider(App.web3Provider);
-
-    //  App.listenForEvents();
-
+      App.listenForNewPosts();
       return App.render();
+
+
+
+
     });
 
     // return App.bindEvents();
+  },
+
+  listenForNewPosts: function()
+  {
+      var MessageInst;
+      App.contracts.Microblogger.deployed().then(function(instance)
+      {
+         MessageInst=instance;
+         instance.NewPost({},{fromBlock:'latest'}).watch(function(err,event)
+            {
+                 console.log("event triggered", event);
+                 // Reload when a new post is recorded
+                 // $('#exampleFormControlTextarea1').trigger('reset');
+                App.render();
+            });
+        });
+
   },
 
   render: function()
@@ -64,6 +83,8 @@ App = {
 
       loader.show();
       content.hide();
+
+
 
       // Load account data
       web3.eth.getCoinbase(function(err, account) {
@@ -78,8 +99,10 @@ App = {
         MessageInst = instance;
         return MessageInst.msgCount();
     }).then(function(msgCount)
-    {
+    {       var cardRow = $('#CardRows');
+            cardRow.empty();
 
+             $("#exampleFormControlTextarea1").trigger("reset");
 
         for (var i = msgCount-1; i>=0; i--)
         {
@@ -88,18 +111,25 @@ App = {
             var owner   = candidate[0];
             var id = candidate[1];
             var data = candidate[2];
-            var created = candidate[3];
-
+            var year = candidate[3];
+            var month = candidate[4];
+            var day = candidate[5];
+            var hour = candidate[6];
+            var minute = candidate[7];
+            var second = candidate[8];
+            var name = candidate[9];
+            var _date_time= day+"/"+month+"/"+year+" "+hour+"::"+minute+"::"+second;
             // Render candidate Result
             // $.getJSON('../Microblogger.json', function(data) {
             var cardRow = $('#CardRows');
             var cardTemplate = $('#cardTemplate');
 
               // for (i = 0; i < ; i ++) {
-                cardTemplate.find('.card-header').text(owner);
-                cardTemplate.find('.card-title').text(id);
-                cardTemplate.find('.card-text').text(data);
-                cardTemplate.find('.card-footer').text(created);
+
+                cardTemplate.find('.text-secondary').text(owner);
+                cardTemplate.find('#headText').text(name);
+                cardTemplate.find('#largerText').text(data);
+                cardTemplate.find('#smallText').text(_date_time);
 
                 cardRow.append(cardTemplate.html());
 
@@ -111,7 +141,79 @@ App = {
       }).catch(function(error) {
         console.warn(error);
       });
-  }
+  },
+
+  login: function()
+  {
+      var MessageInst;
+      var key=$('#inputPassword2').val();
+
+
+      App.contracts.Microblogger.deployed().then(function(instance)
+      {
+          MessageInst = instance;
+          return MessageInst.login(key,{ from: App.account });
+      }).then(function(res)
+      {
+          var dialog=$("#loginsucc");
+          dialog.show()
+          setTimeout(function() { dialog.hide(); }, 2000);
+
+      }).catch(function(err)
+      {
+          var dialog = $("#IncorrectPass");
+          dialog.show();
+          setTimeout(function() { dialog.hide(); }, 2000);
+      });
+  },
+
+  createPost: function()
+  {
+      var MessageInst;
+
+      var postData=$('#exampleFormControlTextarea1').val();
+
+      App.contracts.Microblogger.deployed().then(function(instance) {
+        MessageInst = instance;
+        return MessageInst.PostMessage(postData,  { from: App.account } );
+    }).then(function(res)
+    {
+        // Wait for votes to update
+          $("#content").hide();
+          $("#loader").show();
+    }).catch(function(err) {
+      console.error(err);
+    });
+
+
+    },
+
+    register: function()
+    {
+        var MessageInst;
+        var Username=$('#inputUsername').val();
+        var key=$('#inputPassword3').val();
+
+
+        App.contracts.Microblogger.deployed().then(function(instance)
+        {
+            MessageInst=instance;
+            return MessageInst.register(Username,key, { from: App.account });
+        }).then(function(res)
+        {
+            var dialog = $("#successreg");
+            dialog.show();
+            setTimeout(function() { dialog.hide(); }, 2000);
+
+        }).catch(function(err)
+        {
+            var dialog = $("#alreadymember");
+            dialog.show();
+            setTimeout(function() { dialog.hide(); }, 2000);
+        });
+
+    }
+
 };
 
   // bindEvents: function() {

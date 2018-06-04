@@ -34,13 +34,13 @@
                        <!-- Sign-Up Form -->
                     <div class="row" >
                         <div class="col-md-6">
-                            <form>
-                              <div class="form-row">
-                                <div class="col-md-8">
+                            <form onSubmit="App.register(); return false;" >
+                              <div class="form-row ">
+                                <div class="col-md-10">
                                 <legend>Sign-Up</legend>
-                                  <input type="text" class="form-control" placeholder="Username">
+                                  <input type="text" class="form-control" id="inputUsername" placeholder="Username">
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-10">
                                   <input type="password" class="form-control" id="inputPassword3" aria-describedby="passwordHelpBlock" placeholder="KeyPhrase">
                                   <small id="passwordHelpBlock" class="form-text text-muted">
                                     Your password must be 8-20 characters long, contain letters and numbers, and must not contain emoji. XD
@@ -48,10 +48,10 @@
                                 </div>
                               </div>
                               <button type="submit" class="btn btn-primary">Sign Up</button>
-                              <div class="alert alert-success" role="alert" style="display: none;">
+                              <div class="alert alert-success" id="successreg" role="alert" style="display: none;">
                                 Sign-Up Success! Proceed to login!
                               </div>
-                              <div class="alert alert-warning" role="alert" style="display: none;">
+                              <div class="alert alert-warning" id="alreadymember" role="alert" style="display: none;">
                                   Already a member!!
                               </div>
                             </form>
@@ -61,7 +61,7 @@
 
                         <!-- Login Form -->
                             <div class="col-md-6">
-                                    <form class="form-inline ml-auto">
+                                    <form class="form-inline ml-auto" onSubmit="App.login(); return false;" >
                                         <legend>Login</legend>
                                         <div class="form-group mb-2">
                                                <p id="accountAddress" class="text-center"></p>
@@ -74,11 +74,11 @@
                                         <button type="submit" class="btn btn-primary mb-2">Confirm identity</button>
                                   </form>
 
-                              <div class="alert alert-success" role="alert" style="display: none;">
+                              <div class="alert alert-success" id="loginsucc" role="alert" style="display: none;">
                                 Login Successful!
                               </div>
 
-                              <div class="alert alert-danger" role="alert" style="display: none;">
+                              <div class="alert alert-danger" id="IncorrectPass" role="alert" style="display: none;">
                                    Wrong Password!!
                               </div>
                           </div>
@@ -91,7 +91,7 @@
         </div>
         <br/>
         <hr/>
-        <form>
+        <form onSubmit="App.createPost(); return false;">
             <div class="form-group">
                <label for="exampleFormControlTextarea1">Whats on your mind?</label>
                <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
@@ -100,19 +100,24 @@
         </form>
         <br/>
         <br/>
-        <div id="CardRows" class="btn-group-vertical" role="group" >
+        <div id="CardRows" class=".align-items-lg-start" role="group" >
                   <!-- Cards LOAD HERE -->
         </div>
     </div>
           <!-- Card  -->
-          <div id="cardTemplate" class="btn-group-vertical" role="group"  style="display: none;">
-              <div class="card text-white bg-dark mb-3 mx-auto mt-auto" style="max-width: 18rem;">
-                  <div class="card-header">Header</div>
+          <div id="cardTemplate" class="row mt-5 justify-content-center" role="group"   style="display: none;">
+              <div class="card text-white bg-dark card-custom mx-2 mb-3" >
+                  <div class="card-header">
+                      <div class=card-text id="headText">Header</div>
+                      <small class="text-secondary" id="smallHeader">Last updated 3 mins ago</small>
+                      </div>
                   <div class="card-body">
-                    <h5 class="card-title">Dark card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+
+                    <p class="card-text" id ="largerText">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <p class="card-text"><small class="text-muted" id="smallText">Last updated 3 mins ago</small></p>
                   </div>
-                <div class="card-footer">Footer</div>
+
+
                 </div>
         </div>
 
