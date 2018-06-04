@@ -42,9 +42,9 @@ App = {
   },
 
   initContract: function() {
-      $.getJSON("Microblogger.json", function(inst) {
+      $.getJSON("Microblogger.json", function(microblog) {
       // Instantiate a new truffle contract from the artifact
-      App.contracts.Microblogger = TruffleContract(inst);
+      App.contracts.Microblogger = TruffleContract(microblog);
       // Connect provider to interact with contract
       App.contracts.Microblogger.setProvider(App.web3Provider);
 
@@ -60,7 +60,7 @@ App = {
   {
       var MessageInst;
       var loader = $("#loader");
-      var content = $("#row");
+      var content = $("#CardRow");
 
       loader.show();
       content.hide();
@@ -81,7 +81,7 @@ App = {
     {
 
 
-        for (var i = 1; i <= msgCount; i++)
+        for (var i = msgCount-1; i>=0; i--)
         {
           MessageInst.Messages(i).then(function(candidate)
           {
@@ -92,8 +92,8 @@ App = {
 
             // Render candidate Result
             // $.getJSON('../Microblogger.json', function(data) {
-              var cardRow = $('#CardRows');
-              var cardTemplate = $('#cardTemplate');
+            var cardRow = $('#CardRows');
+            var cardTemplate = $('#cardTemplate');
 
               // for (i = 0; i < ; i ++) {
                 cardTemplate.find('.card-header').text(owner);
